@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Just setting some arbitrary limit
+
 #define MAX_RECORDS 1000
 
 // defining structure using ty
