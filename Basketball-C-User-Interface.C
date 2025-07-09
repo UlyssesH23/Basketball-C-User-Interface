@@ -51,17 +51,15 @@ void deleteRecord(int *recordCount);
 // prints menu
 void printMenu(void);
 // reads file
-void readRecordsFromFile(char *filename, int *recordCount);
+void readRecordsFromFile(const char *filename, int *recordCount);
 // writes to file
-void writeRecordsToFile(char *filename, int *recordCount);
+void writeRecordsToFile(const char *filename, int *recordCount);
 // displays all stats in file
 void displayAllRecords(int *recordCount);
 // sorts the record
 void sortRecords(int option, int *recordCount);
 // searches the record either by season or age
 int searchRecord(char *param, int *recordCount);
-// reads each char
-char *freads(char *buffer, int n, FILE *stream);
 // deals with invalid input
 void handleInvalidInput(void);
 // prints record for search so I don't have 20 lines for each print
@@ -93,7 +91,7 @@ int main(void) {
         scanf("%s", filename);
         readRecordsFromFile(filename, &recordCount);
       } else {
-        readRecordsFromFile("LS.txt", &recordCount);
+        readRecordsFromFile("Jokic.txt", &recordCount);
       }
       break;
     case 2:
@@ -147,7 +145,7 @@ void printMenu(void) {
   printf("Select an option: ");
 }
 
-void readRecordsFromFile(char *filename, int *recordCount) {
+void readRecordsFromFile(const char *filename, int *recordCount) {
   FILE *fp = fopen(filename, "r");
   if (fp == NULL) {
     printf("Error opening file: %s\n", filename);
@@ -158,9 +156,8 @@ void readRecordsFromFile(char *filename, int *recordCount) {
   char buffer[1024];
   fgets(buffer, sizeof(buffer), fp);
   int scannedForFile = 0;
-  // please note freads is a custom function declared above and initialized
-  // below
-  while (freads(buffer, sizeof(buffer), fp) != NULL &&
+  
+  while (fgets(buffer, sizeof(buffer), fp) != NULL &&
          *recordCount < MAX_RECORDS) {
     Record record;
     int scanned = sscanf(
@@ -358,7 +355,7 @@ void printRecordDetails(int index, int *recordCount) {
 // deals with invalid input
 void handleInvalidInput(void) {
   char buffer[100];
-  freads(buffer, sizeof(buffer),
+  fgets(buffer, sizeof(buffer),
          stdin); // Read and discard characters from the input stream
   printf("Invalid input, please try again.\n");
 }
@@ -578,7 +575,7 @@ void addRecord(int *recordCount) {
 }
 
 // writes to file
-void writeRecordsToFile(char *filename, int *recordCount) {
+void writeRecordsToFile(const char *filename, int *recordCount) {
   FILE *file;
   char response;
 
@@ -700,33 +697,4 @@ void deleteRecord(int *recordCount) {
   (*recordCount)--;
 
   printf("Record deleted successfully.\n");
-}
-// reads string from file
-char *freads(char *str, int n, FILE *stream) {
-  if (n <= 0 || !str || !stream) {
-    return NULL; // Handle edge cases
-  }
-
-  int i = 0;
-  char ch;
-  int result;
-  int continue_reading = 1; // Control variable to manage loop execution
-
-  while (i < n - 1 && continue_reading) {
-    result = fscanf(stream, "%c", &ch);
-    if (result == EOF) {
-      if (i == 0) {
-        return NULL; // No characters read before EOF
-      }
-      continue_reading = 0; // Stop the loop
-    } else {
-      str[i++] = ch;
-      if (ch == '\n') {
-        continue_reading = 0; // Stop the loop if newline is encountered
-      }
-    }
-  }
-
-  str[i] = '\0'; // Null-terminate the string
-  return str;
 }
